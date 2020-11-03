@@ -1,0 +1,70 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: kbase
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+  datasource:
+    hikari:
+      connectionTestQuery: select 1
+      connectionTimeout: 10000
+      idleTimeout: 50000
+      maxLifeTime: 600000
+      maximumPoolSize: 100
+    password: curd1024
+    url: jdbc:mysql://39.107.105.125:3306/curd1024?useUnicode=true&characterEncoding=utf8&serverTimezone=GMT&autoReconnect=true&useSSL=false&allowMultiQueries=true
+    username: curd1024
+
+mybatis-plus:
+  tenant-enable: true
+  mapper-locations: classpath:/mapper/*/*Mapper.xml
+  global-config:
+    banner: false
+    db-config:
+      id-type: auto
+      field-strategy: NOT_EMPTY
+
+logging:
+  level:
+    com.sunshineftg.kbase.oss.mapper: debug
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  endpoint:
+    health:
+      show-details: ALWAYS
+
+# 文件系统
+oss:
+  enable: true
+  endpoint: http://47.94.172.138:8080
+  # 自建云存储加反向代理配置成true，第三方云存储配置成false
+  pathStyleAccess: true
+  access-key: minioak
+  secret-key: miniopasswd
+  bucketName: kbase1
+
+# online view api
+#http://localhost:8080/view/onlinePreview?url=http://localhost:8080/file/kbase1/16a345acf1404810ba864cff29f09ffe.docx
+#http://localhost:8080/view/onlinePreview?url=http://localhost:8080/file/kbase1/46df2bd19ed349da9b376763b03ff6ea.xlsx
+#http://localhost:8080/view/onlinePreview?url=http://localhost:8080/file/kbase1/5db51cdc7d664041a9b57234103b442a.pdf
+#http://localhost:8080/view/onlinePreview?url=http://localhost:8080/file/kbase1/27123e2b97754cc39ab5b7f0450d49f2.jpg
+#http://localhost:8080/view/onlinePreview?url=http://localhost:8080/file/kbase1/dafa99a7fec74c0ea96b83fe4b7713a3.java
+zuul:
+  routes:
+    file-online-preview:
+      path: /view/**
+      url: http://localhost:8012
+      stripPrefix: true
+  sensitiveHeaders: "*"
+
+ribbon:
+  ReadTimeout: 15000
+  SocketTimeout: 15000
