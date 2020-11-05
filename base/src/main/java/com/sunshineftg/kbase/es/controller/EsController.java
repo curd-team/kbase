@@ -29,6 +29,17 @@ public class EsController {
         return elasticSearchService.createIndex(index);
     }
 
+    @PostMapping("/createIndexArticle")
+    public String createIndexArticle() throws IOException {
+        return elasticSearchService.createIndexArticle();
+    }
+
+    @PostMapping("/createIndexKeyword")
+    public String createIndexKeyword() throws IOException {
+        return elasticSearchService.createIndexKeyword();
+    }
+
+
     @PostMapping("/existIndex")
     public Boolean existIndex(@RequestBody String index) throws IOException {
         return elasticSearchService.existIndex(index);

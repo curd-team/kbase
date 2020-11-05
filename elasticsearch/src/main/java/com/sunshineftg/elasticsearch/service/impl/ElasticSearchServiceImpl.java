@@ -2,6 +2,7 @@ package com.sunshineftg.elasticsearch.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.sunshineftg.elasticsearch.entity.Article;
+import com.sunshineftg.elasticsearch.entity.Keyword;
 import com.sunshineftg.elasticsearch.service.ElasticSearchService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -70,6 +71,7 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
         return response.toString();
     }
 
+    @Override
     public String createIndexArticle() throws IOException {
         CreateIndexRequest request = new CreateIndexRequest(Article.INDEX_NAME);
         request.settings(Settings.builder()
@@ -136,6 +138,46 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
         return createIndexResponse.index();
     }
 
+    @Override
+    public String createIndexKeyword() throws IOException {
+        CreateIndexRequest request = new CreateIndexRequest(Keyword.INDEX_NAME);
+        request.settings(Settings.builder()
+                .put("index.number_of_shards", 5)
+                .put("index.number_of_replicas", 1)
+        );
+
+        XContentBuilder builder = XContentFactory.jsonBuilder();
+        builder.startObject();
+        {
+            builder.startObject("properties");
+            {
+                builder.startObject("type");
+                {
+                    builder.field("type","short");
+                }
+                builder.endObject();
+                builder.startObject("text");
+                {
+                    builder.field("type","keyword");
+                }
+                builder.endObject();
+                builder.startObject("num");
+                {
+                    builder.field("type","long");
+                }
+                builder.endObject();
+            }
+            builder.endObject();
+        }
+        builder.endObject();
+        request.mapping(builder);
+
+        CreateIndexResponse createIndexResponse = restHighLevelClient.indices().create(request, RequestOptions.DEFAULT);
+
+        return createIndexResponse.index();
+    }
+
+    @Override
     public Boolean existIndex(String index) throws IOException {
         GetIndexRequest request = new GetIndexRequest(index);
         boolean exists = restHighLevelClient.indices().exists(request, RequestOptions.DEFAULT);
@@ -143,6 +185,7 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
         return exists;
     }
 
+    @Override
     public String deleteIndex(String index) throws IOException {
         DeleteIndexRequest request = new DeleteIndexRequest(index);
         AcknowledgedResponse delete = restHighLevelClient.indices().delete(request, RequestOptions.DEFAULT);
@@ -150,6 +193,7 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
         return delete.toString();
     }
 
+    @Override
     public String addDocument(Article article) throws IOException {
         //创建索引请求
         IndexRequest request = new IndexRequest(Article.INDEX_NAME);
@@ -165,6 +209,7 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
 
     }
 
+    @Override
     public Boolean isExists(Article article) throws IOException {
         GetRequest getRequest = new GetRequest(Article.INDEX_NAME, article.getId());
         // 不获取返回的_source 的上下文，会提高速度
@@ -175,6 +220,7 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
         return exists;
     }
 
+    @Override
     public String getDocument(Article article) throws IOException {
         GetRequest getRequest = new GetRequest(Article.INDEX_NAME, article.getId());
         GetResponse response = restHighLevelClient.get(getRequest, RequestOptions.DEFAULT);
@@ -182,6 +228,7 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
         return response.toString();
     }
 
+    @Override
     public String updateDocument(Article article) throws IOException {
         UpdateRequest request = new UpdateRequest(Article.INDEX_NAME, article.getId());
         request.timeout("100s");
@@ -191,6 +238,7 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
         return response.toString();
     }
 
+    @Override
     public String deleteDocument(Article article) throws IOException {
         DeleteRequest request = new DeleteRequest(Article.INDEX_NAME, article.getId());
         request.timeout("1s");
@@ -199,6 +247,7 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
         return response.toString();
     }
 
+    @Override
     public String bulkRequest(List<Article> list) throws IOException {
         BulkRequest request = new BulkRequest();
         request.timeout("10s");
@@ -213,6 +262,7 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
         return response.toString();
     }
 
+    @Override
     public SearchResponse query(Article article) throws IOException {
         SearchRequest request = new SearchRequest();
         //创建查询条件
@@ -234,7 +284,7 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
         highlightBuilder.field("title"); //绑定属性
         highlightBuilder.field("desc"); //绑定属性
         highlightBuilder.field("tags"); //绑定属性
-        highlightBuilder.requireFieldMatch(false); //关闭多个高亮，只显示一个高亮
+        highlightBuilder.requireFieldMatch(true); //关闭多个高亮，只显示一个高亮
         highlightBuilder.preTags("<p style='color:red'>"); //设置前缀
         highlightBuilder.postTags("</p>"); //设置后缀
         sourceBuilder.highlighter(highlightBuilder);
