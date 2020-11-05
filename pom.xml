@@ -33,7 +33,6 @@
     </developers>
 
     <modules>
-
         <module>elasticsearch</module>
         <module>base</module>
     </modules>
@@ -159,11 +158,6 @@
             <version>${mysql.connector.version}</version>
             <scope>runtime</scope>
         </dependency>
-        <!--<dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>druid-spring-boot-starter</artifactId>
-            <version>${druid.version}</version>
-        </dependency>-->
         <!--修复Java8-LocalDateTime问题-->
         <dependency>
             <groupId>org.mybatis</groupId>
@@ -247,20 +241,6 @@
 
     <build>
         <finalName>${project.name}</finalName>
-        <!--<resources>
-            <resource>
-                <directory>base/src/main/resources</directory>
-                <filtering>true</filtering>
-                <includes>
-                    <include>**/*.properties</include>
-                    <include>**/*.xml</include>
-                    <include>**/*.yml</include>
-                    <include>**/*.yaml</include>
-                    <include>**/*.json</include>
-                    <include>**/*.factories</include>
-                </includes>
-            </resource>
-        </resources>-->
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -348,37 +328,5 @@
             </snapshots>
         </pluginRepository>
     </pluginRepositories>
-
-   <!-- <profiles>
-        <profile>
-            <id>dev</id>
-            <properties>
-                <profiles.active>dev</profiles.active>
-                <config.namespace.id>3eea09a7-8452-4553-b83a-f0197e2c5ffd</config.namespace.id>
-            </properties>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-        </profile>
-        <profile>
-            <id>qa</id>
-            <properties>
-                <profiles.active>qa</profiles.active>
-                <config.namespace.id>1917fee9-314f-45b5-aed6-d501c23f9f89</config.namespace.id>
-            </properties>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-        </profile>
-        <profile>
-            <id>release</id>
-            <properties>
-                <profiles.active>release</profiles.active>
-            </properties>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-        </profile>
-    </profiles>-->
 
 </project>
