@@ -328,7 +328,7 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
 
             });
             log.info(searchHit.getSourceAsMap().toString());
-            list.add(JSONObject.parseObject(searchHit.getSourceAsString(), Article.class));
+            list.add(JSONObject.parseObject(JSON.toJSONString(searchHit.getSourceAsMap()), Article.class));
         }
         return list;
     }
