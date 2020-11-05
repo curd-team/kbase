@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -84,7 +85,7 @@ public class EsController {
 
 
     @PostMapping("/queryArticleList")
-    public List<Article> queryArticleList(@RequestBody Article article) throws IOException {
+    public Map<String, Object> queryArticleList(@RequestBody Article article) throws IOException {
         return elasticSearchService.queryArticleList(article);
     }
 
