@@ -6,6 +6,7 @@ import org.elasticsearch.action.search.SearchResponse;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -80,7 +81,7 @@ public interface ElasticSearchService {
      * 搜索查询+高亮
      * @throws IOException
      */
-    List<Article> queryArticleList(Article article) throws IOException;
+    Map<String, Object> queryArticleList(Article article) throws IOException;
 
     Set<String> analyze(String text) throws IOException;
 

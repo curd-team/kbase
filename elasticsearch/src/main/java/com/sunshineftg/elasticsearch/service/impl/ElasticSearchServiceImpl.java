@@ -267,7 +267,8 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
     }
 
     @Override
-    public List<Article> queryArticleList(Article article) throws IOException {
+    public Map<String, Object> queryArticleList(Article article) throws IOException {
+        Map<String, Object> map = new HashMap<>();
         List<Article> list = new ArrayList<>();
         SearchRequest request = new SearchRequest();
         //创建查询条件
@@ -330,7 +331,11 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
             log.info(searchHit.getSourceAsMap().toString());
             list.add(JSONObject.parseObject(JSON.toJSONString(searchHit.getSourceAsMap()), Article.class));
         }
-        return list;
+        map.put("page", article.getPage());
+        map.put("size", article.getSize());
+        map.put("list", list);
+        map.put("total", response.getHits().getTotalHits());
+        return map;
     }
 
     @Override
