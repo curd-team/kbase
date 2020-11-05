@@ -23,6 +23,8 @@ public interface ElasticSearchService {
 
     String createIndexArticle() throws IOException;
 
+    String createIndexKeyword() throws IOException;
+
     /**
      * 判断索引是否存在
      * @param index
