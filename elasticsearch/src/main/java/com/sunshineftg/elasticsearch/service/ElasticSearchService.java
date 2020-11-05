@@ -80,7 +80,7 @@ public interface ElasticSearchService {
      * 搜索查询+高亮
      * @throws IOException
      */
-    SearchResponse query(Article article) throws IOException;
+    List<Article> queryArticleList(Article article) throws IOException;
 
     Set<String> analyze(String text) throws IOException;
 

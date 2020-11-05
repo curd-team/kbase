@@ -1,6 +1,7 @@
 package com.sunshineftg.elasticsearch.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.sunshineftg.elasticsearch.entity.Article;
 import com.sunshineftg.elasticsearch.entity.Keyword;
 import com.sunshineftg.elasticsearch.service.ElasticSearchService;
@@ -266,7 +267,8 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
     }
 
     @Override
-    public SearchResponse query(Article article) throws IOException {
+    public List<Article> queryArticleList(Article article) throws IOException {
+        List<Article> list = new ArrayList<>();
         SearchRequest request = new SearchRequest();
         //创建查询条件
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
@@ -326,8 +328,9 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
 
             });
             log.info(searchHit.getSourceAsMap().toString());
+            list.add(JSONObject.parseObject(searchHit.getSourceAsString(), Article.class));
         }
-        return response;
+        return list;
     }
 
     @Override

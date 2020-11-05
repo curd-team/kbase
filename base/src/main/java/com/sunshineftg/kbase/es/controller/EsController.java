@@ -83,9 +83,9 @@ public class EsController {
     }
 
 
-    @PostMapping("/query")
-    public SearchResponse query(@RequestBody Article article) throws IOException {
-        return elasticSearchService.query(article);
+    @PostMapping("/queryArticleList")
+    public List<Article> queryArticleList(@RequestBody Article article) throws IOException {
+        return elasticSearchService.queryArticleList(article);
     }
 
     @PostMapping("/queryKeyword")
