@@ -125,6 +125,18 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
                     builder.field("type","date");
                 }
                 builder.endObject();
+
+                builder.startObject("domain");
+                {
+                    builder.field("type", "keyword");
+                }
+                builder.endObject();
+
+                builder.startObject("uid");
+                {
+                    builder.field("type", "keyword");
+                }
+                builder.endObject();
             }
             builder.endObject();
         }
@@ -267,7 +279,8 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
     }
 
     @Override
-    public List<Article> queryArticleList(Article article) throws IOException {
+    public Map<String, Object> queryArticleList(Article article) throws IOException {
+        Map<String, Object> map = new HashMap<>();
         List<Article> list = new ArrayList<>();
         SearchRequest request = new SearchRequest();
         //创建查询条件
@@ -328,9 +341,13 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
 
             });
             log.info(searchHit.getSourceAsMap().toString());
-            list.add(JSONObject.parseObject(searchHit.getSourceAsString(), Article.class));
+            list.add(JSONObject.parseObject(JSON.toJSONString(searchHit.getSourceAsMap()), Article.class));
         }
-        return list;
+        map.put("page", article.getPage());
+        map.put("size", article.getSize());
+        map.put("list", list);
+        map.put("total", response.getHits().getTotalHits().value);
+        return map;
     }
 
     @Override

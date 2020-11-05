@@ -40,5 +40,9 @@ public class Article {
 
     private Integer size;
 
+    private String domain;
+
+    private String uid;
+
 
 }
