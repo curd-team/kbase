@@ -1,6 +1,7 @@
 package com.sunshineftg.elasticsearch.service;
 
 import com.sunshineftg.elasticsearch.entity.Article;
+import com.sunshineftg.elasticsearch.entity.Keyword;
 import org.elasticsearch.action.search.SearchResponse;
 
 import java.io.IOException;
@@ -79,8 +80,9 @@ public interface ElasticSearchService {
      * 搜索查询+高亮
      * @throws IOException
      */
-    SearchResponse query(Article article) throws IOException;
+    List<Article> queryArticleList(Article article) throws IOException;
 
     Set<String> analyze(String text) throws IOException;
 
+    List<String> queryKeyword(Keyword keyword) throws IOException;
 }
