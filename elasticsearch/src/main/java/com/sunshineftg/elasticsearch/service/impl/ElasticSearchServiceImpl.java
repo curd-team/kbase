@@ -125,6 +125,18 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
                     builder.field("type","date");
                 }
                 builder.endObject();
+
+                builder.startObject("domain");
+                {
+                    builder.field("type", "keyword");
+                }
+                builder.endObject();
+
+                builder.startObject("uid");
+                {
+                    builder.field("type", "keyword");
+                }
+                builder.endObject();
             }
             builder.endObject();
         }
