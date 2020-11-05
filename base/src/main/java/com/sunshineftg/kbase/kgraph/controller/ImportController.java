@@ -46,7 +46,6 @@ public class ImportController {
      *  {"index":{"_index":"keyword","_id":"%s"}}
      *  {"type":%s,"text":"ztt","termText":"ztt","num":0}
      */
-    @GetMapping("generateEsJsonFile")
     public String  generateEsJsonFile() throws IOException {
         List<String> fundCodes = FileUtils.readLines(new File("db/fundCodes.dic"), StandardCharsets.UTF_8);
         int j = 1;

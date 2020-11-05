@@ -92,14 +92,13 @@ public class GraphRepository {
         return nr;
     }
 
+
+    /**
+     * 显示节点更多关联关系
+     * @return node relationship
+     */
     public HashMap<String, Object> getMoreRelationNode(String domain, String nodeId) {
-        HashMap<String, Object> result = new HashMap<String, Object>();
-        try {
-            String cypherSql = String.format("MATCH (n:`%s`) -[r]-(m) where id(n)=%s  return * limit 100", domain, nodeId);
-            result = neo4jUtil.GetGraphNodeAndShip(cypherSql);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return result;
+        String cypherSql = String.format("MATCH (n:`%s`) -[r]-(m) where id(n)=%s  return * limit 30", domain, nodeId);
+        return neo4jUtil.GetGraphNodeAndShip(cypherSql);
     }
 }
