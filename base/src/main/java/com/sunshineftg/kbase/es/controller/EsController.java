@@ -1,6 +1,7 @@
 package com.sunshineftg.kbase.es.controller;
 
 import com.sunshineftg.elasticsearch.entity.Article;
+import com.sunshineftg.elasticsearch.entity.Keyword;
 import com.sunshineftg.elasticsearch.service.ElasticSearchService;
 import org.elasticsearch.action.search.SearchResponse;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @Auther: zhangtietuo
@@ -84,6 +86,11 @@ public class EsController {
     @PostMapping("/query")
     public SearchResponse query(@RequestBody Article article) throws IOException {
         return elasticSearchService.query(article);
+    }
+
+    @PostMapping("/queryKeyword")
+    public List<String> queryKeyword(@RequestBody Keyword keyword) throws IOException {
+        return elasticSearchService.queryKeyword(keyword);
     }
 
 }

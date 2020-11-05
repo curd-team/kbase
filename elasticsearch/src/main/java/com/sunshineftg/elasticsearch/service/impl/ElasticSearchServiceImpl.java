@@ -43,10 +43,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -157,6 +154,12 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
                 }
                 builder.endObject();
                 builder.startObject("text");
+                {
+                    builder.field("type","text");
+                    builder.field("analyzer","ik_max_word");
+                }
+                builder.endObject();
+                builder.startObject("termText");
                 {
                     builder.field("type","keyword");
                 }
@@ -325,6 +328,42 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
             log.info(searchHit.getSourceAsMap().toString());
         }
         return response;
+    }
+
+    @Override
+    public List<String> queryKeyword(Keyword keyword) throws IOException {
+        List<String> keys = new ArrayList<>();
+        SearchRequest request = new SearchRequest();
+        //创建查询条件
+        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+        // 使用QueryBuilders工具，精确查询term
+        //QueryBuilders.matchAllQuery() 匹配所有
+        BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery();
+        if(StringUtils.isNotBlank(keyword.getText())) {
+            queryBuilder.should(QueryBuilders.matchQuery("text", keyword.getText()));
+        }
+        log.info("检索语句为:{}", queryBuilder.toString());
+        sourceBuilder.query(queryBuilder);
+        sourceBuilder.timeout(new TimeValue(60, TimeUnit.SECONDS));
+
+        request.source(sourceBuilder);
+        SearchResponse response = restHighLevelClient.search(request, RequestOptions.DEFAULT);
+
+        //获取结果对象
+        SearchHits hits = response.getHits();
+
+        log.info(JSON.toJSONString(hits));
+
+        for (SearchHit searchHit : hits) {
+            //获取高亮的html
+            Map<String, HighlightField> highlightFields = searchHit.getHighlightFields();
+            highlightFields.forEach((key, value) -> {
+
+            });
+            keys.add(searchHit.getSourceAsMap().get("text").toString());
+            log.info(searchHit.getSourceAsMap().toString());
+        }
+        return keys;
     }
 
     public Set<String> analyze(String text) throws IOException {
