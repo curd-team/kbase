@@ -18,6 +18,11 @@ spring:
     password: curd1024
     url: jdbc:mysql://39.107.105.125:3306/curd1024?useUnicode=true&characterEncoding=utf8&serverTimezone=GMT&autoReconnect=true&useSSL=false&allowMultiQueries=true
     username: curd1024
+  neo4j:
+    url: bolt://10.66.11.132:7687
+    username: neo4j
+    password: 123456
+
 
 mybatis-plus:
   tenant-enable: true
@@ -68,3 +73,4 @@ zuul:
 ribbon:
   ReadTimeout: 15000
   SocketTimeout: 15000
+

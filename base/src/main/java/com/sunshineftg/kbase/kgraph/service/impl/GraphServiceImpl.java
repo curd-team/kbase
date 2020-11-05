@@ -18,4 +18,9 @@ public class GraphServiceImpl implements IGraphService {
     public HashMap<String, Object> getDomainGraph(GraphQuery query) {
         return graphRepository.getDomainGraph(query);
     }
+
+    @Override
+    public HashMap<String, Object> getMoreRelationNode(String domain, String nodeId) {
+        return graphRepository.getMoreRelationNode(domain,nodeId);
+    }
 }

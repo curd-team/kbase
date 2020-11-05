@@ -44,45 +44,48 @@ public class ImportController {
 
     /**
      *  {"index":{"_index":"keyword","_id":"%s"}}
-     *  {"type":%s,"text":"ztt","num":0}
+     *  {"type":%s,"text":"ztt","termText":"ztt","num":0}
      */
     @GetMapping("generateEsJsonFile")
     public String  generateEsJsonFile() throws IOException {
         List<String> fundCodes = FileUtils.readLines(new File("db/fundCodes.dic"), StandardCharsets.UTF_8);
         int j = 1;
+        String oneP = "{\"index\":{\"_index\":\"keyword\",\"_id\":\"%s\"}}";
+        String twoP = "{\"type\":%s,\"text\":\"%s\",\"termText\":\"%s\",\"num\":0}";
         for (String fundCode : fundCodes) {
-            String one = String.format("{\"index\":{\"_index\":\"keyword\",\"_id\":\"%s\"}}", j++);
+            String one = String.format(oneP, j++);
             FileUtils.writeLines(new File("db/esIndex.json"), Collections.singleton(one), true);
-            String two = String.format("{\"type\":%s,\"text\":\"%s\",\"num\":0}", "1", fundCode);
+            String two = String.format(twoP, "1", fundCode,fundCode);
             FileUtils.writeLines(new File("db/esIndex.json"), Collections.singleton(two), true);
         }
-
         List<String> fundNames = FileUtils.readLines(new File("db/fundNames.dic"), StandardCharsets.UTF_8);
         for (String fundName : fundNames) {
-            String one = String.format("{\"index\":{\"_index\":\"keyword\",\"_id\":\"%s\"}}", j++);
+            String one = String.format(oneP, j++);
             FileUtils.writeLines(new File("db/esIndex.json"), Collections.singleton(one), true);
-            String two = String.format("{\"type\":%s,\"text\":\"%s\",\"num\":0}", "2", fundName);
+            String two = String.format(twoP, "2", fundName,fundName);
             FileUtils.writeLines(new File("db/esIndex.json"), Collections.singleton(two), true);
         }
-
-
         List<String> managerNames = FileUtils.readLines(new File("db/managerNames.dic"), StandardCharsets.UTF_8);
         for (String managerName : managerNames) {
-            String one = String.format("{\"index\":{\"_index\":\"keyword\",\"_id\":\"%s\"}}", j++);
+            String one = String.format(oneP, j++);
             FileUtils.writeLines(new File("db/esIndex.json"), Collections.singleton(one), true);
-            String two = String.format("{\"type\":%s,\"text\":\"%s\",\"num\":0}", "3", managerName);
+            String two = String.format(twoP, "3", managerName,managerName);
             FileUtils.writeLines(new File("db/esIndex.json"), Collections.singleton(two), true);
         }
-
         List<String> fundComs = FileUtils.readLines(new File("db/fundComs.dic"), StandardCharsets.UTF_8);
         for (String fundCom : fundComs) {
-            String one = String.format("{\"index\":{\"_index\":\"keyword\",\"_id\":\"%s\"}}", j++);
+            String one = String.format(oneP, j++);
             FileUtils.writeLines(new File("db/esIndex.json"), Collections.singleton(one), true);
-            String two = String.format("{\"type\":%s,\"text\":\"%s\",\"num\":0}", "4", fundCom);
+            String two = String.format(twoP, "4", fundCom,fundCom);
             FileUtils.writeLines(new File("db/esIndex.json"), Collections.singleton(two), true);
         }
         return "ok";
 
+    }
+
+    public static void main(String[] args) throws IOException {
+        String s = new ImportController().generateEsJsonFile();
+        System.out.println("s = " + s);
     }
 
 

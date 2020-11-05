@@ -39,7 +39,7 @@ public class GraphRepository {
                     cqr = String.join(" or ", lis);
                 }
                 String cqWhere = "";
-                if (!StringUtils.isBlank(query.getNodeName()) || !StringUtils.isBlank(cqr)) {
+                if (StringUtils.isNotEmpty(query.getDomainType()) || !StringUtils.isBlank(query.getNodeName()) || !StringUtils.isBlank(cqr)) {
                     if (!StringUtils.isBlank(query.getNodeName())) {
                         if (query.getMatchType() == 1) {
                             cqWhere = String.format("where n.name ='%s' ", query.getNodeName());
@@ -51,11 +51,13 @@ public class GraphRepository {
                     if (!StringUtils.isBlank(cqr)) {
                         if (StringUtils.isBlank(cqWhere)) {
                             cqWhere = String.format(" where ( %s )", cqr);
-
                         } else {
                             cqWhere += String.format(" and ( %s )", cqr);
                         }
+                    }
 
+                    if (StringUtils.isNotEmpty(query.getDomainType())) {
+                        cqWhere+= String.format(" and n._domainType = '%s'",query.getDomainType());
                     }
                     // 下边的查询查不到单个没有关系的节点,考虑要不要左箭头
                     String nodeSql = String.format("MATCH (n:`%s`) <-[r]->(m) %s return * limit %s", domain, cqWhere,
@@ -88,5 +90,16 @@ public class GraphRepository {
             log.error("query domain graph ex",e);
         }
         return nr;
+    }
+
+    public HashMap<String, Object> getMoreRelationNode(String domain, String nodeId) {
+        HashMap<String, Object> result = new HashMap<String, Object>();
+        try {
+            String cypherSql = String.format("MATCH (n:`%s`) -[r]-(m) where id(n)=%s  return * limit 100", domain, nodeId);
+            result = neo4jUtil.GetGraphNodeAndShip(cypherSql);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result;
     }
 }
