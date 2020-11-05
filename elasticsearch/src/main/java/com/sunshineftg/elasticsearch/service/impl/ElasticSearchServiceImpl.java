@@ -334,7 +334,7 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
         map.put("page", article.getPage());
         map.put("size", article.getSize());
         map.put("list", list);
-        map.put("total", response.getHits().getTotalHits());
+        map.put("total", response.getHits().getTotalHits().value);
         return map;
     }
 
