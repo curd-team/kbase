@@ -47,6 +47,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -216,6 +217,7 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
             article.setFileId(StringUtils.split(article.getFileIdStr()));
         }
         article.setFileIdStr(null);
+        article.setCreateDate(LocalDateTime.now());
         //创建索引请求
         IndexRequest request = new IndexRequest(Article.INDEX_NAME);
         //设置规则 例如相当于 PUT /hcode_index/_doc/1 命令
@@ -295,7 +297,7 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
     @Override
     public Map<String, Object> queryArticleListAndAddSearchNum(Article article) throws IOException {
         this.addSearchNum(article.getTitle());
-        Map<String, Object> map = this.queryArticleList(article, null);
+        Map<String, Object> map = this.queryArticleList(article);
         return map;
     }
 
@@ -345,10 +347,10 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
         }
     }
 
-    private Map<String, Object> queryArticleList(Article article, String sortKey) throws IOException {
+    private Map<String, Object> queryArticleList(Article article) throws IOException {
         Map<String, Object> map = new HashMap<>();
         List<Article> list = new ArrayList<>();
-        SearchRequest request = new SearchRequest();
+        SearchRequest request = new SearchRequest("article");
         //创建查询条件
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
         // 使用QueryBuilders工具，精确查询term
@@ -378,8 +380,8 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
         sourceBuilder.from((article.getPage()-1)*article.getSize());
         sourceBuilder.size(article.getSize());
         log.info("检索语句为:{}", queryBuilder.toString());
-        if(StringUtils.isNotBlank(sortKey)) {
-            sourceBuilder.sort(new FieldSortBuilder(sortKey).order(SortOrder.DESC));
+        if(StringUtils.isNotBlank(article.getUid())) {
+            sourceBuilder.sort(new FieldSortBuilder("createDate").order(SortOrder.DESC));
         }
         sourceBuilder.query(queryBuilder);
         sourceBuilder.timeout(new TimeValue(60, TimeUnit.SECONDS));
@@ -412,7 +414,9 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
 
             });
             log.info(searchHit.getSourceAsMap().toString());
-            list.add(JSONObject.parseObject(JSON.toJSONString(searchHit.getSourceAsMap()), Article.class));
+            Article art = JSONObject.parseObject(JSON.toJSONString(searchHit.getSourceAsMap()), Article.class);
+            art.setId(searchHit.getId());
+            list.add(art);
         }
         map.put("page", article.getPage());
         map.put("size", article.getSize());

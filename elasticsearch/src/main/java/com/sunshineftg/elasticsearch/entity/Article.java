@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 /**
  * @Auther: zhangtietuo
@@ -42,7 +43,7 @@ public class Article {
 
     private Long num;
 
-    private LocalDate createDate;
+    private LocalDateTime createDate;
 
     private String tagsStr;
 
