@@ -84,14 +84,31 @@ public class EsController {
     }
 
 
+    /**
+     * 查询文章列表 带分页
+     * @param article
+     * @return
+     * @throws IOException
+     */
     @PostMapping("/queryArticleList")
     public Map<String, Object> queryArticleList(@RequestBody Article article) throws IOException {
         return elasticSearchService.queryArticleList(article);
     }
 
+    /**
+     * 通过用户输入的内容模糊查询反显索引库里已存的tag列表
+     * @param keyword
+     * @return
+     * @throws IOException
+     */
     @PostMapping("/queryKeyword")
     public List<String> queryKeyword(@RequestBody Keyword keyword) throws IOException {
         return elasticSearchService.queryKeyword(keyword);
+    }
+
+    @PostMapping("/queryTypeByTermKey")
+    public Integer queryTypeByTermKey(@RequestBody String text) throws IOException {
+        return elasticSearchService.queryTypeByTermKey(text);
     }
 
 }

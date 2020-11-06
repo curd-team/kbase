@@ -386,6 +386,19 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
         return keys;
     }
 
+    @Override
+    public Integer queryTypeByTermKey(String text) throws IOException {
+        SearchRequest request = new SearchRequest();
+        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+        sourceBuilder.query(QueryBuilders.termQuery("termText", text));
+        sourceBuilder.timeout(new TimeValue(60, TimeUnit.SECONDS));
+
+        request.source(sourceBuilder);
+        SearchResponse response = restHighLevelClient.search(request, RequestOptions.DEFAULT);
+
+        return (Integer) response.getHits().getAt(0).getSourceAsMap().get("type");
+    }
+
     public Set<String> analyze(String text) throws IOException {
         // 调用 IK 分词分词
 //        JestClient client = new JestClient();

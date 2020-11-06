@@ -86,4 +86,6 @@ public interface ElasticSearchService {
     Set<String> analyze(String text) throws IOException;
 
     List<String> queryKeyword(Keyword keyword) throws IOException;
+
+    Integer queryTypeByTermKey(String text) throws IOException;
 }
