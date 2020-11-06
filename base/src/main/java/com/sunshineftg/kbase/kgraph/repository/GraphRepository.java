@@ -55,9 +55,12 @@ public class GraphRepository {
                             cqWhere += String.format(" and ( %s )", cqr);
                         }
                     }
-
                     if (StringUtils.isNotEmpty(query.getDomainType())) {
-                        cqWhere+= String.format(" and n._domainType = '%s'",query.getDomainType());
+                        if (StringUtils.isBlank(cqWhere)) {
+                            cqWhere+= String.format(" where  n._domainType = '%s'",query.getDomainType());
+                        } else {
+                            cqWhere+= String.format(" and n._domainType = '%s'",query.getDomainType());
+                        }
                     }
                     // 下边的查询查不到单个没有关系的节点,考虑要不要左箭头
                     String nodeSql = String.format("MATCH (n:`%s`) <-[r]->(m) %s return * limit %s", domain, cqWhere,
@@ -98,7 +101,7 @@ public class GraphRepository {
      * @return node relationship
      */
     public HashMap<String, Object> getMoreRelationNode(String domain, String nodeId) {
-        String cypherSql = String.format("MATCH (n:`%s`) -[r]-(m) where id(n)=%s  return * limit 30", domain, nodeId);
+        String cypherSql = String.format("MATCH (n:`%s`) -[r]-(m) where id(n)=%s  return * limit 100", domain,nodeId);
         return neo4jUtil.GetGraphNodeAndShip(cypherSql);
     }
 }

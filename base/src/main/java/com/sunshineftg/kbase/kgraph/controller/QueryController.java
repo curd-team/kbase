@@ -26,12 +26,28 @@ public class QueryController {
         return BaseResponse.success(null);
     }
 
+    // http://localhost:8080/graph/query/getDomainGraph?domain=&domainType=03
     @GetMapping(value = "/getDomainGraph")
     public BaseResponse<HashMap<String, Object>> getDomainGraph(GraphQuery query) {
         log.info("getDomainGraph query:{}", JSON.toJSONString(query));
+        if ("基金".equals(query.getDomain()) && StringUtils.isNotEmpty(query.getDomainType()) && StringUtils.isEmpty(query.getNodeName())) {
+            // 针对基金领域特殊处理
+            query.setMatchType(1);
+            if ("01".equals(query.getDomainType()) ) {
+                query.setNodeName("【基金】");
+            }
+            if ("02".equals(query.getDomainType()) ) {
+                query.setNodeName("【基金经理】");
+            }
+            if ("03".equals(query.getDomainType()) ) {
+                query.setNodeName("【基金公司】");
+            }
+        }
         return BaseResponse.success(graphService.getDomainGraph(query));
     }
 
+
+    // http://localhost:8080/graph/query/getMoreRelationNode?domain=%E5%9F%BA%E9%87%91&nodeId=12883
     @GetMapping(value = "/getMoreRelationNode")
     public BaseResponse<HashMap<String, Object>> getMoreRelationNode(String domain, String nodeId) {
         if (StringUtils.isEmpty(domain) || StringUtils.isEmpty(nodeId)){

@@ -50,7 +50,7 @@
         <spring-cloud-alibaba.version>2.2.0.RELEASE</spring-cloud-alibaba.version>
         <spring-platform.version>Cairo-SR8</spring-platform.version>
         <spring-security.version>5.2.2.RELEASE</spring-security.version>
-        <spring-security-oauth2.version>2.3.6.RELEASE</spring-security-oauth2.version>
+        <spring-security-oauth2.version>2.3.4.RELEASE</spring-security-oauth2.version>
         <spring-boot-admin.version>2.2.2</spring-boot-admin.version>
         <!-- 2.1.2不兼容alibaba -->
         <jasypt.version>2.1.1</jasypt.version>
@@ -66,6 +66,8 @@
         <druid.version>1.1.23</druid.version>
         <mysql.connector.version>8.0.21</mysql.connector.version>
         <aws.version>1.11.543</aws.version>
+        <neo4j-driver.version>1.6.1</neo4j-driver.version>
+        <javacsv.version>2.0</javacsv.version>
 
         <arthas.version>3.4.3</arthas.version>
     </properties>
@@ -74,14 +76,14 @@
     <!-- 子model按需引入 -->
     <dependencyManagement>
         <dependencies>
+            <!-- maven的继承是单继承 -->
+            <!-- parent模块预定义的依赖可能会越来越多 -->
+            <!-- 将多个依赖按职责分离到一个pom中，parent再引入该pom -->
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
                 <version>${spring-boot.version}</version>
                 <type>pom</type>
-                <!-- maven的继承是单继承 -->
-                <!-- parent模块预定义的依赖可能会越来越多 -->
-                <!-- 将多个依赖按职责分离到一个pom中，parent再引入该pom -->
                 <scope>import</scope>
             </dependency>
             <dependency>
@@ -125,7 +127,6 @@
                 <artifactId>spring-security-oauth2</artifactId>
                 <version>${spring-security-oauth2.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>de.codecentric</groupId>
                 <artifactId>spring-boot-admin-dependencies</artifactId>
@@ -133,7 +134,6 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-
         </dependencies>
     </dependencyManagement>
 
@@ -150,6 +150,12 @@
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-boot-starter</artifactId>
+            <version>${mybatis-plus.version}</version>
+        </dependency>
+        <!--mybatis plus extension,包含了mybatis plus core-->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-extension</artifactId>
             <version>${mybatis-plus.version}</version>
         </dependency>
         <dependency>
@@ -217,7 +223,6 @@
         <dependency>
             <groupId>de.codecentric</groupId>
             <artifactId>spring-boot-admin-starter-client</artifactId>
-            <version>${spring-boot-admin.version}</version>
         </dependency>
         <!--Lombok-->
         <dependency>
@@ -231,7 +236,6 @@
             <artifactId>jasypt-spring-boot-starter</artifactId>
             <version>${jasypt.version}</version>
         </dependency>
-
         <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-all</artifactId>
