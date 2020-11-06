@@ -44,6 +44,10 @@ public class Article {
 
     private LocalDate createDate;
 
+    private String tagsStr;
+
+    private String fileIdStr;
+
     /**
      * 查询用 不入索引库
      */
