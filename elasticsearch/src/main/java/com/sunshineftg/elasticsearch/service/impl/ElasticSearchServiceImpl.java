@@ -254,6 +254,15 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
         return response.toString();
     }
 
+    public String updateKeywordDocument(Keyword keyword, String id) throws IOException {
+        UpdateRequest request = new UpdateRequest(Keyword.INDEX_NAME, id);
+        request.timeout("100s");
+        request.doc(JSON.toJSONString(keyword), XContentType.JSON);
+        UpdateResponse response = restHighLevelClient.update(request, RequestOptions.DEFAULT);
+        log.info("返回状态码(成功返回 OK):{},内容:{}", response.status(), response.toString());
+        return response.toString();
+    }
+
     @Override
     public String deleteDocument(Article article) throws IOException {
         DeleteRequest request = new DeleteRequest(Article.INDEX_NAME, article.getId());
@@ -279,7 +288,46 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
     }
 
     @Override
-    public Map<String, Object> queryArticleList(Article article) throws IOException {
+    public Map<String, Object> queryArticleListAndAddSearchNum(Article article) throws IOException {
+        this.addSearchNum(article.getTitle());
+        Map<String, Object> map = this.queryArticleList(article);
+        return map;
+    }
+
+    @Override
+    public List<String> queryKeyword(Keyword keyword) throws IOException {
+        List<String> keys = new ArrayList<>();
+        SearchHit[] hits = this.queryKeywordList(keyword.getText());
+        for (SearchHit searchHit : hits) {
+            keys.add(searchHit.getSourceAsMap().get("text").toString());
+            log.info(searchHit.getSourceAsMap().toString());
+        }
+        return keys;
+    }
+
+    @Override
+    public Integer queryTypeByTermKey(String text) throws IOException {
+        SearchRequest request = new SearchRequest();
+        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+        sourceBuilder.query(QueryBuilders.termQuery("termText", text));
+        sourceBuilder.timeout(new TimeValue(60, TimeUnit.SECONDS));
+
+        request.source(sourceBuilder);
+        SearchResponse response = restHighLevelClient.search(request, RequestOptions.DEFAULT);
+
+        return (Integer) response.getHits().getAt(0).getSourceAsMap().get("type");
+    }
+
+    private void addSearchNum(String title) throws IOException {
+        SearchHit[] hits = this.queryKeywordList(title);
+        for (SearchHit searchHit : hits) {
+            Keyword keyword = JSONObject.parseObject(JSON.toJSONString(searchHit.getSourceAsMap()), Keyword.class);
+            keyword.setNum(keyword.getNum()+1);
+            this.updateKeywordDocument(keyword, searchHit.getId());
+        }
+    }
+
+    private Map<String, Object> queryArticleList(Article article) throws IOException {
         Map<String, Object> map = new HashMap<>();
         List<Article> list = new ArrayList<>();
         SearchRequest request = new SearchRequest();
@@ -350,17 +398,15 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
         return map;
     }
 
-    @Override
-    public List<String> queryKeyword(Keyword keyword) throws IOException {
-        List<String> keys = new ArrayList<>();
+    private SearchHit[] queryKeywordList(String text) throws IOException {
         SearchRequest request = new SearchRequest();
         //创建查询条件
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
         // 使用QueryBuilders工具，精确查询term
         //QueryBuilders.matchAllQuery() 匹配所有
         BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery();
-        if(StringUtils.isNotBlank(keyword.getText())) {
-            queryBuilder.should(QueryBuilders.matchQuery("text", keyword.getText()));
+        if(StringUtils.isNotBlank(text)) {
+            queryBuilder.should(QueryBuilders.matchQuery("text", text));
         }
         log.info("检索语句为:{}", queryBuilder.toString());
         sourceBuilder.query(queryBuilder);
@@ -373,30 +419,7 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
         SearchHits hits = response.getHits();
 
         log.info(JSON.toJSONString(hits));
-
-        for (SearchHit searchHit : hits) {
-            //获取高亮的html
-            Map<String, HighlightField> highlightFields = searchHit.getHighlightFields();
-            highlightFields.forEach((key, value) -> {
-
-            });
-            keys.add(searchHit.getSourceAsMap().get("text").toString());
-            log.info(searchHit.getSourceAsMap().toString());
-        }
-        return keys;
-    }
-
-    @Override
-    public Integer queryTypeByTermKey(String text) throws IOException {
-        SearchRequest request = new SearchRequest();
-        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
-        sourceBuilder.query(QueryBuilders.termQuery("termText", text));
-        sourceBuilder.timeout(new TimeValue(60, TimeUnit.SECONDS));
-
-        request.source(sourceBuilder);
-        SearchResponse response = restHighLevelClient.search(request, RequestOptions.DEFAULT);
-
-        return (Integer) response.getHits().getAt(0).getSourceAsMap().get("type");
+        return hits.getHits();
     }
 
     public Set<String> analyze(String text) throws IOException {

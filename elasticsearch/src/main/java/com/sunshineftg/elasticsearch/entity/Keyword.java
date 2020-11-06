@@ -25,6 +25,8 @@ public class Keyword {
 
     private String text;
 
+    private String termText;
+
     /**
      * 被搜索次数
      */

@@ -92,7 +92,7 @@ public class EsController {
      */
     @PostMapping("/queryArticleList")
     public Map<String, Object> queryArticleList(@RequestBody Article article) throws IOException {
-        return elasticSearchService.queryArticleList(article);
+        return elasticSearchService.queryArticleListAndAddSearchNum(article);
     }
 
     /**

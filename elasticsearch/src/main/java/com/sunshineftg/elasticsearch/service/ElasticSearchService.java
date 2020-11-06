@@ -81,7 +81,7 @@ public interface ElasticSearchService {
      * 搜索查询+高亮
      * @throws IOException
      */
-    Map<String, Object> queryArticleList(Article article) throws IOException;
+    Map<String, Object> queryArticleListAndAddSearchNum(Article article) throws IOException;
 
     Set<String> analyze(String text) throws IOException;
 
