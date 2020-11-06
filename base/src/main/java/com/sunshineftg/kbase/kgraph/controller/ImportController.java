@@ -10,7 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -81,12 +80,6 @@ public class ImportController {
         return "ok";
 
     }
-
-    public static void main(String[] args) throws IOException {
-        String s = new ImportController().generateEsJsonFile();
-        System.out.println("s = " + s);
-    }
-
 
 
 
@@ -317,9 +310,9 @@ public class ImportController {
     }
 
 
-
-
-
-
+    public static void main(String[] args) throws IOException {
+        String s = new ImportController().generateEsJsonFile();
+        System.out.println("s = " + s);
+    }
 
 }
