@@ -85,11 +85,6 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
         {
             builder.startObject("properties");
             {
-                builder.startObject("id");
-                {
-                    builder.field("type", "keyword");
-                }
-                builder.endObject();
                 builder.startObject("title");
                 {
                     builder.field("type","text");
@@ -104,18 +99,29 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
                 builder.startObject("desc");
                 {
                     builder.field("type","text");
-                    builder.field("analyzer","ik_smart");
+                    builder.field("analyzer","ik_max_word");
                 }
                 builder.endObject();
                 builder.startObject("content");
                 {
                     builder.field("type","text");
-                    builder.field("analyzer","ik_smart");
+                    builder.field("analyzer","ik_max_word");
                 }
                 builder.endObject();
                 builder.startObject("fileId");
                 {
                     builder.field("type","keyword");
+                }
+                builder.endObject();
+                builder.startObject("domain");
+                {
+                    builder.field("type", "keyword");
+                }
+                builder.endObject();
+
+                builder.startObject("uid");
+                {
+                    builder.field("type", "keyword");
                 }
                 builder.endObject();
                 builder.startObject("num");
@@ -126,18 +132,6 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
                 builder.startObject("createDate");
                 {
                     builder.field("type","date");
-                }
-                builder.endObject();
-
-                builder.startObject("domain");
-                {
-                    builder.field("type", "keyword");
-                }
-                builder.endObject();
-
-                builder.startObject("uid");
-                {
-                    builder.field("type", "keyword");
                 }
                 builder.endObject();
             }
@@ -214,6 +208,14 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
 
     @Override
     public String addDocument(Article article) throws IOException {
+        if(StringUtils.isNotBlank(article.getTagsStr())) {
+            article.setTags(StringUtils.split(article.getTagsStr()));
+        }
+        article.setTagsStr(null);
+        if(StringUtils.isNotBlank(article.getFileIdStr())) {
+            article.setFileId(StringUtils.split(article.getFileIdStr()));
+        }
+        article.setFileIdStr(null);
         //创建索引请求
         IndexRequest request = new IndexRequest(Article.INDEX_NAME);
         //设置规则 例如相当于 PUT /hcode_index/_doc/1 命令
@@ -293,7 +295,7 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
     @Override
     public Map<String, Object> queryArticleListAndAddSearchNum(Article article) throws IOException {
         this.addSearchNum(article.getTitle());
-        Map<String, Object> map = this.queryArticleList(article);
+        Map<String, Object> map = this.queryArticleList(article, null);
         return map;
     }
 
@@ -343,7 +345,7 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
         }
     }
 
-    private Map<String, Object> queryArticleList(Article article) throws IOException {
+    private Map<String, Object> queryArticleList(Article article, String sortKey) throws IOException {
         Map<String, Object> map = new HashMap<>();
         List<Article> list = new ArrayList<>();
         SearchRequest request = new SearchRequest();
@@ -360,6 +362,9 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
         if(StringUtils.isNotBlank(article.getTag())) {
             queryBuilder.should(QueryBuilders.matchQuery("tags", article.getTag()));
         }
+        if(StringUtils.isNotBlank(article.getUid())) {
+            queryBuilder.should(QueryBuilders.matchQuery("uid", article.getUid()));
+        }
         //配置高亮
         HighlightBuilder highlightBuilder = new HighlightBuilder();
         highlightBuilder.field("title"); //绑定属性
@@ -373,6 +378,9 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
         sourceBuilder.from((article.getPage()-1)*article.getSize());
         sourceBuilder.size(article.getSize());
         log.info("检索语句为:{}", queryBuilder.toString());
+        if(StringUtils.isNotBlank(sortKey)) {
+            sourceBuilder.sort(new FieldSortBuilder(sortKey).order(SortOrder.DESC));
+        }
         sourceBuilder.query(queryBuilder);
         sourceBuilder.timeout(new TimeValue(60, TimeUnit.SECONDS));
 
