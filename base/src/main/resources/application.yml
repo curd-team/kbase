@@ -1,13 +1,13 @@
 server:
-  port: 8080
+  port: 8989
 
 spring:
   application:
     name: kbase
   servlet:
     multipart:
-      max-file-size: 100MB
-      max-request-size: 100MB
+      max-file-size: 20MB
+      max-request-size: 20MB
   datasource:
     hikari:
       connectionTestQuery: select 1

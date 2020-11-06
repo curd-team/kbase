@@ -34,10 +34,10 @@ public class Neo4jUtil {
 	public StatementResult excuteCypherSql(String cypherSql) {
 		StatementResult result = null;
 		try (Session session = neo4jDriver.session()) {
-			System.out.println(cypherSql);
+			log.info("executeCypherSql:{}",cypherSql);
 			result = session.run(cypherSql);
 		} catch (Exception e) {
-			throw e;
+			log.error("executeCypherSql ex",e);
 		}
 		return result;
 	}
