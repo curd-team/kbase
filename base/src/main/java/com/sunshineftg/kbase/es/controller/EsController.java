@@ -111,4 +111,8 @@ public class EsController {
         return elasticSearchService.queryTypeByTermKey(text);
     }
 
+    @PostMapping("/queryHotTags")
+    public List<String> queryHotTags(@RequestBody Keyword keyword) throws IOException {
+        return elasticSearchService.queryHotTags(keyword);
+    }
 }

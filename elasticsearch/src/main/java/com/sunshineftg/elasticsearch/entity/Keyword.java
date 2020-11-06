@@ -31,4 +31,6 @@ public class Keyword {
      * 被搜索次数
      */
     private Long num;
+
+    private Integer size;
 }

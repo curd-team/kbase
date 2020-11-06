@@ -33,6 +33,7 @@ import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
@@ -40,6 +41,8 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.fetch.subphase.FetchSourceContext;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
+import org.elasticsearch.search.sort.FieldSortBuilder;
+import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -297,7 +300,7 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
     @Override
     public List<String> queryKeyword(Keyword keyword) throws IOException {
         List<String> keys = new ArrayList<>();
-        SearchHit[] hits = this.queryKeywordList(keyword.getText());
+        SearchHit[] hits = this.queryKeywordList(keyword, null);
         for (SearchHit searchHit : hits) {
             keys.add(searchHit.getSourceAsMap().get("text").toString());
             log.info(searchHit.getSourceAsMap().toString());
@@ -318,8 +321,21 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
         return (Integer) response.getHits().getAt(0).getSourceAsMap().get("type");
     }
 
+    @Override
+    public List<String> queryHotTags(Keyword keyword) throws IOException {
+        List<String> keys = new ArrayList<>();
+        SearchHit[] hits = this.queryKeywordList(keyword, "num");
+        for (SearchHit searchHit : hits) {
+            keys.add(searchHit.getSourceAsMap().get("text").toString());
+            log.info(searchHit.getSourceAsMap().toString());
+        }
+        return keys;
+    }
+
     private void addSearchNum(String title) throws IOException {
-        SearchHit[] hits = this.queryKeywordList(title);
+        Keyword searchKeyword = new Keyword();
+        searchKeyword.setText(title);
+        SearchHit[] hits = this.queryKeywordList(searchKeyword, null);
         for (SearchHit searchHit : hits) {
             Keyword keyword = JSONObject.parseObject(JSON.toJSONString(searchHit.getSourceAsMap()), Keyword.class);
             keyword.setNum(keyword.getNum()+1);
@@ -334,7 +350,6 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
         //创建查询条件
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
         // 使用QueryBuilders工具，精确查询term
-        //QueryBuilders.matchAllQuery() 匹配所有
         BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery();
         if(StringUtils.isNotBlank(article.getTitle())) {
             queryBuilder.should(QueryBuilders.matchQuery("title", article.getTitle()));
@@ -398,20 +413,25 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
         return map;
     }
 
-    private SearchHit[] queryKeywordList(String text) throws IOException {
-        SearchRequest request = new SearchRequest();
+    private SearchHit[] queryKeywordList(Keyword keyword, String sortKey) throws IOException {
+        SearchRequest request = new SearchRequest("keyword");
         //创建查询条件
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
-        // 使用QueryBuilders工具，精确查询term
-        //QueryBuilders.matchAllQuery() 匹配所有
-        BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery();
-        if(StringUtils.isNotBlank(text)) {
-            queryBuilder.should(QueryBuilders.matchQuery("text", text));
+        QueryBuilder queryBuilder;
+        if(StringUtils.isNotBlank(keyword.getText())) {
+            queryBuilder = QueryBuilders.matchQuery("text", keyword.getText());
+        } else {
+            queryBuilder = QueryBuilders.matchAllQuery();
         }
         log.info("检索语句为:{}", queryBuilder.toString());
+        if(StringUtils.isNotBlank(sortKey)) {
+            sourceBuilder.sort(new FieldSortBuilder(sortKey).order(SortOrder.DESC));
+        }
         sourceBuilder.query(queryBuilder);
         sourceBuilder.timeout(new TimeValue(60, TimeUnit.SECONDS));
-
+        if(null != keyword.getSize()) {
+            sourceBuilder.size(keyword.getSize());
+        }
         request.source(sourceBuilder);
         SearchResponse response = restHighLevelClient.search(request, RequestOptions.DEFAULT);
 
