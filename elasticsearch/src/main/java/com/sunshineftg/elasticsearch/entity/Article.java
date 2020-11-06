@@ -30,19 +30,30 @@ public class Article {
 
     private String[] fileId;
 
+    /**
+     * 领
+     */
+    private String domain;
+
+    /**
+     * 上传者id
+     */
+    private String uid;
+
     private Long num;
 
     private LocalDate createDate;
 
+    /**
+     * 查询用 不入索引库
+     */
     private String tag;
 
     private Integer page;
 
     private Integer size;
 
-    private String domain;
 
-    private String uid;
 
 
 }
