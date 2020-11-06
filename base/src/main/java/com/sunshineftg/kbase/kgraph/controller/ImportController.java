@@ -100,7 +100,7 @@ public class ImportController {
      * & otherProperties
      * http://localhost:8080/graph/loadCsv?domain=%E5%9F%BA%E9%87%91
      */
-    @GetMapping("loadCsv")
+    // @GetMapping("loadCsv")
     public String loadCsv(String csvLocation ,String domain) throws IOException {
         if (StringUtils.isEmpty(domain)) {
             domain = "domain";
