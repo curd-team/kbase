@@ -1,0 +1,96 @@
+{
+	"info": {
+		"_postman_id": "aad9973e-a18b-4c06-9264-9e12ba37b9b8",
+		"name": "kbase",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "获取某领域知识图谱",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/graph/query/getDomainGraph?domain=基金&domainType=03&pageSize=10&pageIndex=1&matchType=0&nodeName",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"graph",
+						"query",
+						"getDomainGraph"
+					],
+					"query": [
+						{
+							"key": "domain",
+							"value": "基金",
+							"description": "领域-基金"
+						},
+						{
+							"key": "domainType",
+							"value": "03",
+							"description": "领域中二级分类（基金:01,基金经理:02,基金公司:03）"
+						},
+						{
+							"key": "pageSize",
+							"value": "10",
+							"description": "分页条数"
+						},
+						{
+							"key": "pageIndex",
+							"value": "1",
+							"description": "分页起始页"
+						},
+						{
+							"key": "matchType",
+							"value": "0",
+							"description": "是否精确查找  1精确查找"
+						},
+						{
+							"key": "nodeName",
+							"value": null,
+							"description": "节点名称"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "查询领域内某节点相关节点",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/graph/query/getMoreRelationNode?domain=基金&nodeId=12883",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"graph",
+						"query",
+						"getMoreRelationNode"
+					],
+					"query": [
+						{
+							"key": "domain",
+							"value": "基金",
+							"description": "领域名称-基金"
+						},
+						{
+							"key": "nodeId",
+							"value": "12883",
+							"description": "节点id"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}
