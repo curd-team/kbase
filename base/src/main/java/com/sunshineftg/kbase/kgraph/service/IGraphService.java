@@ -13,5 +13,5 @@ public interface IGraphService {
      */
     HashMap<String, Object> getDomainGraph(GraphQuery query);
 
-    HashMap<String, Object> getMoreRelationNode(String domain, String nodeId);
+    HashMap<String, Object> getMoreRelationNode(String domain, String nodeId,String count);
 }

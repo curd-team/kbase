@@ -20,7 +20,7 @@ public class GraphServiceImpl implements IGraphService {
     }
 
     @Override
-    public HashMap<String, Object> getMoreRelationNode(String domain, String nodeId) {
-        return graphRepository.getMoreRelationNode(domain,nodeId);
+    public HashMap<String, Object> getMoreRelationNode(String domain, String nodeId,String count) {
+        return graphRepository.getMoreRelationNode(domain,nodeId,count);
     }
 }

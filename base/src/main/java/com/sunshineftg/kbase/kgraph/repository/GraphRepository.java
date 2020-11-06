@@ -100,8 +100,8 @@ public class GraphRepository {
      * 显示节点更多关联关系
      * @return node relationship
      */
-    public HashMap<String, Object> getMoreRelationNode(String domain, String nodeId) {
-        String cypherSql = String.format("MATCH (n:`%s`) -[r]-(m) where id(n)=%s  return * limit 100", domain,nodeId);
+    public HashMap<String, Object> getMoreRelationNode(String domain, String nodeId,String count) {
+        String cypherSql = String.format("MATCH (n:`%s`) -[r]-(m) where id(n)=%s  return * limit %s", domain,nodeId,count);
         return neo4jUtil.GetGraphNodeAndShip(cypherSql);
     }
 }

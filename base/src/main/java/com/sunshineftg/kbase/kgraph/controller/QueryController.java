@@ -49,11 +49,14 @@ public class QueryController {
 
     // http://localhost:8080/graph/query/getMoreRelationNode?domain=%E5%9F%BA%E9%87%91&nodeId=12883
     @GetMapping(value = "/getMoreRelationNode")
-    public BaseResponse<HashMap<String, Object>> getMoreRelationNode(String domain, String nodeId) {
+    public BaseResponse<HashMap<String, Object>> getMoreRelationNode(String domain, String nodeId,String count) {
         if (StringUtils.isEmpty(domain) || StringUtils.isEmpty(nodeId)){
             return BaseResponse.fail("参数不符合");
         }
-        return BaseResponse.success(graphService.getMoreRelationNode(domain, nodeId));
+        if (StringUtils.isEmpty(count)) {
+            count = "50";
+        }
+        return BaseResponse.success(graphService.getMoreRelationNode(domain, nodeId,count));
 
     }
 
