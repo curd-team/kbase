@@ -210,14 +210,15 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
     @Override
     public String addDocument(Article article) throws IOException {
         if(StringUtils.isNotBlank(article.getTagsStr())) {
-            article.setTags(StringUtils.split(article.getTagsStr()));
+            article.setTags(StringUtils.split(article.getTagsStr(), ","));
         }
         article.setTagsStr(null);
         if(StringUtils.isNotBlank(article.getFileIdStr())) {
-            article.setFileId(StringUtils.split(article.getFileIdStr()));
+            article.setFileId(StringUtils.split(article.getFileIdStr(),","));
         }
         article.setFileIdStr(null);
         article.setCreateDate(LocalDateTime.now());
+        //log.info(JSON.toJSONString(article));
         //创建索引请求
         IndexRequest request = new IndexRequest(Article.INDEX_NAME);
         //设置规则 例如相当于 PUT /hcode_index/_doc/1 命令
@@ -373,8 +374,8 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
         highlightBuilder.field("desc"); //绑定属性
         highlightBuilder.field("tags"); //绑定属性
         highlightBuilder.requireFieldMatch(true); //关闭多个高亮，只显示一个高亮
-        highlightBuilder.preTags("<p style='color:red'>"); //设置前缀
-        highlightBuilder.postTags("</p>"); //设置后缀
+        highlightBuilder.preTags("<span style='color:red'>"); //设置前缀
+        highlightBuilder.postTags("</span>"); //设置后缀
         sourceBuilder.highlighter(highlightBuilder);
         //分页
         sourceBuilder.from((article.getPage()-1)*article.getSize());
