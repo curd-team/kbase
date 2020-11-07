@@ -28,6 +28,13 @@ public interface FileManageService extends IService<FileEntity> {
 	void getFile(String bucket, String fileName, HttpServletResponse response);
 
     /**
+     * 获取文件数据
+     * @param bucket 桶名称
+     * @param fileName 文件名称
+     */
+    R getFileEntity(String bucket, String fileName);
+
+    /**
      * 获取分享链接
      * @param bucket 桶名称
      * @param fileName 文件名称

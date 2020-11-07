@@ -77,4 +77,14 @@ public class FileManageController {
         return fileManageService.getFile(bucketName, fileName, expires);
     }
 
+    /**
+     * 获取文件数据
+     * @param bucketName 桶名称
+     * @param fileName 文件空间/名称
+     * @return
+     */
+    @GetMapping("/info/{bucketName}/{fileName}")
+    public Object get(@PathVariable("bucketName") String bucketName, @PathVariable("fileName") String fileName) {
+        return fileManageService.getFileEntity(bucketName, fileName);
+    }
 }

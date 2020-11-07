@@ -5,6 +5,7 @@ import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import com.amazonaws.services.s3.model.S3Object;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.api.R;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.sunshineftg.kbase.oss.config.OssProperties;
@@ -75,7 +76,19 @@ public class FileManageServiceImpl extends ServiceImpl<FileMapper, FileEntity> i
 		}
 	}
 
-	/**
+    @Override
+    public R getFileEntity(String bucket, String fileName) {
+        FileEntity record = new FileEntity();
+        record.setBucketName(bucket);
+        record.setFileName(fileName);
+        FileEntity result = this.getOne(Wrappers.query(record));
+        if (result == null) {
+            return R.failed("文件数据未查询到");
+        }
+        return R.ok(result);
+    }
+
+    /**
 	 * 删除文件
 	 * @param id
 	 * @return
