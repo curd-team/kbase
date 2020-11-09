@@ -320,8 +320,11 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
         List<String> keys = new ArrayList<>();
         SearchHit[] hits = this.queryKeywordList(keyword, null);
         for (SearchHit searchHit : hits) {
-            keys.add(searchHit.getSourceAsMap().get("text").toString());
-            log.info(searchHit.getSourceAsMap().toString());
+            if(StringUtils.equals("3", searchHit.getSourceAsMap().get("type").toString())) {
+                keys.add(0, searchHit.getSourceAsMap().get("text").toString());
+            } else {
+                keys.add(searchHit.getSourceAsMap().get("text").toString());
+            }
         }
         return keys;
     }
