@@ -341,7 +341,7 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
 
     private void addSearchNum(String title) throws IOException {
         Keyword searchKeyword = new Keyword();
-        searchKeyword.setText(title);
+        searchKeyword.setTermText(title);
         SearchHit[] hits = this.queryKeywordList(searchKeyword, null);
         for (SearchHit searchHit : hits) {
             Keyword keyword = JSONObject.parseObject(JSON.toJSONString(searchHit.getSourceAsMap()), Keyword.class);
@@ -435,6 +435,8 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
         QueryBuilder queryBuilder;
         if(StringUtils.isNotBlank(keyword.getText())) {
             queryBuilder = QueryBuilders.matchQuery("text", keyword.getText());
+        } else if (StringUtils.isNotBlank(keyword.getTermText())) {
+            queryBuilder = QueryBuilders.matchQuery("termText", keyword.getTermText());
         } else {
             queryBuilder = QueryBuilders.matchAllQuery();
         }
