@@ -334,6 +334,7 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
             Keyword key = new Keyword();
             key.setText(searchHit.getSourceAsMap().get("text").toString());
             key.setNum(Long.valueOf(searchHit.getSourceAsMap().get("num").toString()));
+            keys.add(key);
             log.info(searchHit.getSourceAsMap().toString());
         }
         return keys;
