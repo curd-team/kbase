@@ -64,8 +64,13 @@ public class EsController {
     }
 
     @PostMapping("/getDocument")
-    public String getDocument(@RequestBody Article article) throws IOException {
-        return elasticSearchService.getDocument(article);
+    public Article getDocument(@RequestBody String id) throws IOException {
+        return elasticSearchService.getDocument(id);
+    }
+
+    @PostMapping("/getDocument")
+    public Keyword getKeywordDocument(@RequestBody String id) throws IOException {
+        return elasticSearchService.getKeywordDocument(id);
     }
 
     @PostMapping("/updateDocument")

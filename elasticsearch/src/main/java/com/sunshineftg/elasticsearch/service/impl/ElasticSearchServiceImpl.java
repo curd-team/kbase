@@ -7,6 +7,7 @@ import com.sunshineftg.elasticsearch.entity.Keyword;
 import com.sunshineftg.elasticsearch.service.ElasticSearchService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.elasticsearch.ElasticsearchStatusException;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
@@ -245,11 +246,21 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
     }
 
     @Override
-    public String getDocument(Article article) throws IOException {
-        GetRequest getRequest = new GetRequest(Article.INDEX_NAME, article.getId());
+    public Article getDocument(String id) throws IOException {
+        GetRequest getRequest = new GetRequest(Article.INDEX_NAME, id);
         GetResponse response = restHighLevelClient.get(getRequest, RequestOptions.DEFAULT);
         log.info("获取文档的内容:{}", response.getSourceAsString());
-        return response.toString();
+        Article article = JSONObject.parseObject(JSON.toJSONString(response.getSourceAsMap()), Article.class);
+        return article;
+    }
+
+    @Override
+    public Keyword getKeywordDocument(String id) throws IOException {
+        GetRequest getRequest = new GetRequest(Keyword.INDEX_NAME, id);
+        GetResponse response = restHighLevelClient.get(getRequest, RequestOptions.DEFAULT);
+        log.info("获取文档的内容:{}", response.getSourceAsString());
+        Keyword keyword = JSONObject.parseObject(JSON.toJSONString(response.getSourceAsMap()), Keyword.class);
+        return keyword;
     }
 
     @Override
@@ -265,10 +276,12 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
     public String updateKeywordDocument(Keyword keyword, String id) throws IOException {
         UpdateRequest request = new UpdateRequest(Keyword.INDEX_NAME, id);
         request.timeout("100s");
+        request.retryOnConflict(3);
         request.doc(JSON.toJSONString(keyword), XContentType.JSON);
         UpdateResponse response = restHighLevelClient.update(request, RequestOptions.DEFAULT);
         log.info("返回状态码(成功返回 OK):{},内容:{}", response.status(), response.toString());
         return response.toString();
+
     }
 
     @Override
@@ -347,7 +360,15 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
         for (SearchHit searchHit : hits) {
             Keyword keyword = JSONObject.parseObject(JSON.toJSONString(searchHit.getSourceAsMap()), Keyword.class);
             keyword.setNum(keyword.getNum()+1);
-            this.updateKeywordDocument(keyword, searchHit.getId());
+            try {
+                this.updateKeywordDocument(keyword, searchHit.getId());
+            } catch (ElasticsearchStatusException e) {
+                log.error("更新出错:{}", e.getMessage(), e);
+                keyword = this.getKeywordDocument(searchHit.getId());
+                keyword.setNum(keyword.getNum()+1);
+                this.updateKeywordDocument(keyword, searchHit.getId());
+            }
+
         }
     }
 

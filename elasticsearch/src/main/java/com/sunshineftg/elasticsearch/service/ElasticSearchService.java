@@ -57,7 +57,9 @@ public interface ElasticSearchService {
      * 获取文档的信息 GET /hcode_index/_doc/1
      * @throws IOException
      */
-    String getDocument(Article article) throws IOException;
+    Article getDocument(String id) throws IOException;
+
+    Keyword getKeywordDocument(String id) throws IOException;
 
     /**
      * 更新文档信息
