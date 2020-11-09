@@ -68,7 +68,7 @@ public class EsController {
         return elasticSearchService.getDocument(id);
     }
 
-    @PostMapping("/getDocument")
+    @PostMapping("/getKeywordDocument")
     public Keyword getKeywordDocument(@RequestBody String id) throws IOException {
         return elasticSearchService.getKeywordDocument(id);
     }
