@@ -112,7 +112,7 @@ public class EsController {
     }
 
     @PostMapping("/queryHotTags")
-    public List<String> queryHotTags(@RequestBody Keyword keyword) throws IOException {
+    public List<Keyword> queryHotTags(@RequestBody Keyword keyword) throws IOException {
         return elasticSearchService.queryHotTags(keyword);
     }
 }

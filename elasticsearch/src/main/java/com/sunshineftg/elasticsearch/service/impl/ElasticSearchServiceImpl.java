@@ -327,11 +327,13 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
     }
 
     @Override
-    public List<String> queryHotTags(Keyword keyword) throws IOException {
-        List<String> keys = new ArrayList<>();
+    public List<Keyword> queryHotTags(Keyword keyword) throws IOException {
+        List<Keyword> keys = new ArrayList<>();
         SearchHit[] hits = this.queryKeywordList(keyword, "num");
         for (SearchHit searchHit : hits) {
-            keys.add(searchHit.getSourceAsMap().get("text").toString());
+            Keyword key = new Keyword();
+            key.setText(searchHit.getSourceAsMap().get("text").toString());
+            key.setNum(Long.valueOf(searchHit.getSourceAsMap().get("num").toString()));
             log.info(searchHit.getSourceAsMap().toString());
         }
         return keys;

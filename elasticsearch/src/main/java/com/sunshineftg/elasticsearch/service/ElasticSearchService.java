@@ -89,5 +89,5 @@ public interface ElasticSearchService {
 
     Integer queryTypeByTermKey(String text) throws IOException;
 
-    List<String> queryHotTags(Keyword keyword) throws IOException;
+    List<Keyword> queryHotTags(Keyword keyword) throws IOException;
 }
