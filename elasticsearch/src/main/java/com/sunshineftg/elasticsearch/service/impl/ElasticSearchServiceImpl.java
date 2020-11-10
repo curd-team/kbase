@@ -279,7 +279,8 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
         request.retryOnConflict(3);
         request.doc(JSON.toJSONString(keyword), XContentType.JSON);
         UpdateResponse response = restHighLevelClient.update(request, RequestOptions.DEFAULT);
-        log.info("返回状态码(成功返回 OK):{},内容:{}", response.status(), response.toString());
+        response.getGetResult().toString();
+        log.info("返回状态码(成功返回 OK):{},内容:{}, result:{}, documents:{}", response.status(), response.toString(), response.getGetResult().toString(), response.getGetResult().getDocumentFields());
         return response.toString();
 
     }
