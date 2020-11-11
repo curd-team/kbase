@@ -259,7 +259,7 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
     public Keyword getKeywordDocument(String id) throws IOException {
         GetRequest getRequest = new GetRequest(Keyword.INDEX_NAME, id);
         GetResponse response = restHighLevelClient.get(getRequest, RequestOptions.DEFAULT);
-        log.info("获取文档的内容:{}", response.getSourceAsString());
+        log.info("获取文档的内容:{}, version:{}", response.getSourceAsString(), response.getVersion());
         Keyword keyword = JSONObject.parseObject(JSON.toJSONString(response.getSourceAsMap()), Keyword.class);
         return keyword;
     }
@@ -278,13 +278,14 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
         UpdateRequest request = new UpdateRequest(Keyword.INDEX_NAME, id);
         request.timeout("100s");
         request.retryOnConflict(3);
+        log.info("文档要被修改成为:{}", JSON.toJSONString(keyword));
         request.doc(JSON.toJSONString(keyword), XContentType.JSON);
         UpdateResponse response = restHighLevelClient.update(request, RequestOptions.DEFAULT);
+        log.info("返回状态码(成功返回 OK):{},内容:{}", response.status(), response.toString());
         if(StringUtils.equals(DocWriteResponse.Result.NOOP.name(), response.getResult().name())) {
             log.info("文档返回noop，已被修改");
             throw new ResourceNotFoundException(response.toString());
         }
-        log.info("返回状态码(成功返回 OK):{}", response.status());
         return response.toString();
 
     }
@@ -365,19 +366,17 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
         Keyword searchKeyword = new Keyword();
         searchKeyword.setTermText(title);
         SearchHit[] hits = this.queryKeywordList(searchKeyword, null);
-        for (SearchHit searchHit : hits) {
-            Keyword keyword = JSONObject.parseObject(JSON.toJSONString(searchHit.getSourceAsMap()), Keyword.class);
-            keyword.setNum(keyword.getNum()+1);
-            try {
-                this.updateKeywordDocument(keyword, searchHit.getId());
-            } catch (ResourceNotFoundException e) {
-                log.error("更新出错:{}", e.getMessage(), e);
-                keyword = this.getKeywordDocument(searchHit.getId());
-                keyword.setNum(keyword.getNum()+1);
-                this.updateKeywordDocument(keyword, searchHit.getId());
-            }
-
+        SearchHit searchHit = hits[0];
+        log.info("version: {}", searchHit.getVersion());
+        Keyword keyword = JSONObject.parseObject(JSON.toJSONString(searchHit.getSourceAsMap()), Keyword.class);
+        keyword.setNum(keyword.getNum()+1);
+        try {
+            this.updateKeywordDocument(keyword, searchHit.getId());
+        } catch (ResourceNotFoundException e) {
+            log.error("更新出错:{}", e.getMessage());
+            this.addSearchNum(title);
         }
+
     }
 
     private Map<String, Object> queryArticleList(Article article) throws IOException {
@@ -481,7 +480,6 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
 
         //获取结果对象
         SearchHits hits = response.getHits();
-
         log.info(JSON.toJSONString(hits));
         return hits.getHits();
     }
