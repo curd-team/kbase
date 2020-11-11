@@ -8,6 +8,8 @@ import com.sunshineftg.elasticsearch.service.ElasticSearchService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.ElasticsearchStatusException;
+import org.elasticsearch.ResourceNotFoundException;
+import org.elasticsearch.action.DocWriteResponse;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
@@ -249,7 +251,6 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
     public Article getDocument(String id) throws IOException {
         GetRequest getRequest = new GetRequest(Article.INDEX_NAME, id);
         GetResponse response = restHighLevelClient.get(getRequest, RequestOptions.DEFAULT);
-        log.info("获取文档的内容:{}", response.getSourceAsString());
         Article article = JSONObject.parseObject(JSON.toJSONString(response.getSourceAsMap()), Article.class);
         return article;
     }
@@ -279,8 +280,11 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
         request.retryOnConflict(3);
         request.doc(JSON.toJSONString(keyword), XContentType.JSON);
         UpdateResponse response = restHighLevelClient.update(request, RequestOptions.DEFAULT);
-        //response.getGetResult().toString();
-        //log.info("返回状态码(成功返回 OK):{},内容:{}, result:{}, documents:{}", response.status(), response.toString(), response.getGetResult().toString(), response.getGetResult().getDocumentFields());
+        if(StringUtils.equals(DocWriteResponse.Result.NOOP.name(), response.getResult().name())) {
+            log.info("文档返回noop，已被修改");
+            throw new ResourceNotFoundException(response.toString());
+        }
+        log.info("返回状态码(成功返回 OK):{}", response.status());
         return response.toString();
 
     }
@@ -366,7 +370,7 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
             keyword.setNum(keyword.getNum()+1);
             try {
                 this.updateKeywordDocument(keyword, searchHit.getId());
-            } catch (ElasticsearchStatusException e) {
+            } catch (ResourceNotFoundException e) {
                 log.error("更新出错:{}", e.getMessage(), e);
                 keyword = this.getKeywordDocument(searchHit.getId());
                 keyword.setNum(keyword.getNum()+1);
@@ -420,8 +424,6 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
 
         //获取结果对象
         SearchHits hits = response.getHits();
-
-        log.info(JSON.toJSONString(hits));
 
         for (SearchHit searchHit : hits) {
             //获取高亮的html
@@ -483,37 +485,6 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
 
         log.info(JSON.toJSONString(hits));
         return hits.getHits();
-    }
-
-    public Set<String> analyze(String text) throws IOException {
-        // 调用 IK 分词分词
-//        JestClient client = new JestClient();
-//        Analyze ikAnalyze = new Analyze.Builder()
-//                .index(TEST_INDEX)
-//                .analyzer(IK_TYPE)
-//                .text(searchContent)
-//                .build();
-//
-//        JestResult result = null;
-        Set<String> keySet = new HashSet<String>();
-//        try {
-//            result = client.execute(ikAnalyze);
-//            JsonArray jsonArray = result.getJsonObject().getAsJsonArray("tokens");
-//            int arraySize = jsonArray.size();
-//            for (int i = 0; i < arraySize; ++i) {
-//                JsonElement curKeyword = jsonArray.get(i).getAsJsonObject().get("token");
-//                //Logger.info("rst = " + curKeyword.getAsString());
-//                keySet.add(curKeyword.getAsString());
-//            }
-//        } catch (IOException e) {
-//            // TODO Auto-generated catch block
-//            e.printStackTrace();
-//        }
-
-        return keySet;
-
-
-
     }
 
 }

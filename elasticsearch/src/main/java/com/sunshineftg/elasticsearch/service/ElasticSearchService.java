@@ -85,8 +85,6 @@ public interface ElasticSearchService {
      */
     Map<String, Object> queryArticleListAndAddSearchNum(Article article) throws IOException;
 
-    Set<String> analyze(String text) throws IOException;
-
     List<String> queryKeyword(Keyword keyword) throws IOException;
 
     Integer queryTypeByTermKey(String text) throws IOException;
