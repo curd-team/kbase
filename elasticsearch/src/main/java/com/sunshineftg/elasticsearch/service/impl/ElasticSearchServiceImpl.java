@@ -21,6 +21,7 @@ import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.support.WriteRequest;
 import org.elasticsearch.action.support.master.AcknowledgedResponse;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.action.update.UpdateResponse;
@@ -261,6 +262,7 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
         GetResponse response = restHighLevelClient.get(getRequest, RequestOptions.DEFAULT);
         log.info("获取文档的内容:{}, version:{}", response.getSourceAsString(), response.getVersion());
         Keyword keyword = JSONObject.parseObject(JSON.toJSONString(response.getSourceAsMap()), Keyword.class);
+        //keyword.set_version(response.getVersion());
         return keyword;
     }
 
@@ -277,7 +279,9 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
     public String updateKeywordDocument(Keyword keyword, String id) throws IOException {
         UpdateRequest request = new UpdateRequest(Keyword.INDEX_NAME, id);
         request.timeout("100s");
-        request.retryOnConflict(3);
+        request.setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE);
+        //request.versionType()
+        //request.retryOnConflict(3);
         log.info("文档要被修改成为:{}", JSON.toJSONString(keyword));
         request.doc(JSON.toJSONString(keyword), XContentType.JSON);
         UpdateResponse response = restHighLevelClient.update(request, RequestOptions.DEFAULT);
@@ -366,17 +370,12 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
         Keyword searchKeyword = new Keyword();
         searchKeyword.setTermText(title);
         SearchHit[] hits = this.queryKeywordList(searchKeyword, null);
-        SearchHit searchHit = hits[0];
-        log.info("version: {}", searchHit.getVersion());
-        Keyword keyword = JSONObject.parseObject(JSON.toJSONString(searchHit.getSourceAsMap()), Keyword.class);
-        keyword.setNum(keyword.getNum()+1);
-        try {
+        if(hits.length != 0 && null != hits) {
+            SearchHit searchHit = hits[0];
+            Keyword keyword = this.getKeywordDocument(searchHit.getId());
+            keyword.setNum(keyword.getNum()+1);
             this.updateKeywordDocument(keyword, searchHit.getId());
-        } catch (ResourceNotFoundException e) {
-            log.error("更新出错:{}", e.getMessage());
-            this.addSearchNum(title);
         }
-
     }
 
     private Map<String, Object> queryArticleList(Article article) throws IOException {
